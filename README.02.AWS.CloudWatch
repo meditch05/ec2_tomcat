@@ -1,0 +1,44 @@
+1. IAM > Roles > Create > CloudWatchAgentServerPolicy > ds05599_cloudwatch
+   EC2 > Instance ( Tomcat EC2 ) > Action > Security > Attach IAM Role ( ds05599_cloudwatch )
+   ( https://st-soul.tistory.com/23 )
+   
+2. EC2에서 region의 CloudWatch Logs Endpoint에 접근가능한지 확인
+   ( https://docs.aws.amazon.com/general/latest/gr/cwl_region.html )
+   
+   # curl https://logs.ap-northeast-2.amazonaws.com
+
+3. CloudWatch Agent 설치
+   ( https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/install-CloudWatch-Agent-on-EC2-Instance.html )
+   
+   # sudo yum install -y amazon-cloudwatch-agent
+   
+4. CloudWatch Agent Configuration File 구성
+   ( https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html )
+   ( https://medium.com/@labcloud/ec2%EC%97%90-cloudwatch-agent-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0-e7113cdc396e )
+   * 수동으로 json 파일 수정하기는 버거우니, wizard를 쓰자.
+   
+   # cd /opt/aws/amazon-cloudwatch-agent
+   # vi doc/amazon-cloudwatch-agent-schema.json
+   
+   # sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-config-wizard
+   * 모니터링해야하는 Tomcat 파일 입력
+     ( /home/ec2-user/tomcat/servers/aws_test/logs/catalina.out )
+	 ==> Log Group 이름이 catalina.out 으로 찍힌다 ( CloudWatch > Logs > Log Groups )
+	 
+	 ==> 일자별로 찍히는 accessLog는 어떻게 수집하나?
+	 
+	 
+   * Paramaeter Store Name : AmazonCloudWatch-Tomcat
+   * aws_access_key_id 입력
+   * aws_secret_access_key  입력
+   
+   # ls -l /opt/aws/amazon-cloudwatch-agent/bin/config.json
+   
+5. CloudWatch Agent 기동
+   # sudo mkdir /usr/share/collectd
+   # sudo touch /usr/share/collectd/types.db
+   # sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
+   
+
+   
+4. 
